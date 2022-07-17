@@ -1,49 +1,49 @@
-#!/usr/bin/env bash
+#!/usr/bin/python3
+
+import sys
+import math
 
 
-check_factor()
-{
-	if [ $# -ne 3 ];
-        then
-                args=("$@")
-                count=0
-                num2=1
-                for a in ${args[*]};
-                do
-                        if [ $count -gt 1 ];
-                        then
-                                num2=$(echo $a*$num2 | bc)
-                        fi
-                        count=$((count + 1))
-                done
-        else
-                num2=$3
-        fi
+def is_prime(num):
+    """checks for prime number"""
+    i = 3
+    if num % 2 == 0:
+        return False
+    while i * i <= num:
+        if num % i == 0:
+            return False
+        i += 2
+    return True
 
-        num1=$2
-        num=$(echo "$1" | tr ':' '=')
 
-        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
-	        if ((result == 1)); then
-		        numcp=$num1
-		        num1=$num2
-		        num2=$numcp
-                fi
+def get_nums(file):
+    """gets the numbers from file"""
+    nums = []
+    with open(file, encoding='utf-8') as f:
+        for line in f.readlines():
+            nums += int(line)
+    return nums
 
-        echo "$num$num1*$num2"
-}
 
-if [ $# -ne 1 ]
-then
-        echo 'Usage: rsa <file>'
-        exit 1
-else
+def factorize(n):
+    """factorize a the number"""
+    i = 2
+    if n < i:
+        return
+    while n % i:
+        if is_prime(n):
+            print("{:.0f}={:.0f}*{:.0f}".format(n, n / i, i))
 
-        while read i
-        do
 
-                result=$(factor "$i")
-                check_factor $result
+def main(args):
+    """entry"""
+    if len(args) != 2:
+        print("usage: factors.py <file>")
+        sys.exit(1)
+    nums = get_nums(args[1])
+    for n in nums:
+        factorize(n)
 
-        done < "$1"
-fi
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
