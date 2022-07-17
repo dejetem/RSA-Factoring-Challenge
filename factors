@@ -1,38 +1,50 @@
-#!/usr/bin/python3
-
-import sys
-import math
+#!/usr/bin/env bash
 
 
 
-def get_nums(file):
-    """gets the numbers from file"""
-    nums = []
-    with open(file, encoding='utf-8') as f:
-        for line in f.readlines():
-            nums += int(line)
-    return nums
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                count=0
+                num2=1
+                for a in ${args[*]};
+                do
+                        if [ $count -gt 1 ];
+                        then
+                                num2=$(echo $a*$num2 | bc)
+                        fi
+                        count=$((count + 1))
+                done
+        else
+                num2=$3
+        fi
 
+        num1=$2
+        num=$(echo "$1" | tr ':' '=')
 
-def factorize(n):
-    """factorize a the number"""
-    i = 2
-    if n < i:
-        return
-    while n % i:
-        i += 1
-    print("{:.0f}={:.0f}*{:.0f}".format(n, n / i, i))
+        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
+	        if ((result == 1)); then
+		        numcp=$num1
+		        num1=$num2
+		        num2=$numcp
+                fi
 
+        echo "$num$num1*$num2"
+}
 
-def main(args):
-    """entry"""
-    if len(args) != 2:
-        print("usage: factors.py <file>")
-        sys.exit(1)
-    nums = get_nums(args[1])
-    for n in nums:
-        factorize(n)
+if [ $# -ne 1 ]
+then
+        echo 'Usage: factors <file>'
+        exit 1
+else
 
+        while read i
+        do
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+                result=$(factor "$i")
+                check_factor $result
+
+        done < "$1"
+fi
